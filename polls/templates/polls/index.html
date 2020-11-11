@@ -2,6 +2,14 @@
 <html>
   <head>
     <title>Polls App | Home</title>
+
+    <style>
+      a {
+        text-decoration: none;
+        color: blue;
+      }
+    </style>
+
   </head>
 
   <body>
@@ -13,6 +21,7 @@
             <a href="{% url 'polls:detail' question.id%}">
               {{ question.question_text}}
             </a>
+            [Published: {{question.pub_date}}]
           </li>
         {% endfor %}
       </ol>

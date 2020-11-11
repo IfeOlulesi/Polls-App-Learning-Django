@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse 
 from django.views import generic
+from django.utils import timezone
 
 from .models import Choice, Question
 
@@ -11,7 +12,7 @@ class IndexView(generic.ListView):
   context_object_name = 'latest_question_list'
 
   def get_queryset(self):
-    return Question.objects.order_by('-pub_date')[:5]
+    return Question.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')[:5]
 
 
 class DetailView(generic.DetailView):
@@ -28,10 +29,11 @@ def vote(request, question_id):
   question = get_object_or_404(Question, pk=question_id)
 
   try:
+    # check if the choice exists
     selected_choice = question.choice_set.get(pk=request.POST['choice'])
 
   except (KeyError, Choice.DoesNotExist):
-    # redisplay the question voting form
+    # redisplay the question voting form 
     return render(request, 'polls/detail.html', {
       'question': question,
       'error_message': "You didn't select a choice.", 
@@ -44,20 +46,3 @@ def vote(request, question_id):
     # This prevents data from being posted twice if the user hits the back button.
     return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
   
-
-# def index(request):
-#     latest_question_list = Question.objects.order_by('-pub_date')[:5]
-#     context = {'latest_question_list': latest_question_list}
-#     return render(request, 'polls/index.html', context)
-
-
-# def detail(request, question_id):
-#   question = get_object_or_404(Question, pk=question_id)
-#   context = {'question': question}
-#   return render(request, 'polls/detail.html', context)
-
-
-# def results(request, question_id):
-#   question = get_object_or_404(Question, pk=question_id)
-#   context = {'question': question}
-#   return render(request, 'polls/results.html', context)
